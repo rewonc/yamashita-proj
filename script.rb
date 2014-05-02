@@ -1,10 +1,18 @@
 require 'rubygems'
 require 'rmagick'
+require 'delegate'
+
+class PixelDecorator < SimpleDelegator
+  def rgb
+    lightness = (red/65535.0 * 0.2126) + (green/65535.0 * 0.7152) + (blue/65535.0 * 0.0722)
+    (lightness * 100).round
+  end
+end
 
 class Imagemap  
   def initialize
     @path = '5x5circle.jpg'
-    @magick = Magick::Image.read(@path)
+    @magick = Magick::Image.read('public/' + @path)
   end  
 
   def image
@@ -19,13 +27,18 @@ class Imagemap
     "This image is #{image.columns}x#{image.rows} pixels"
   end
   
-  def pixelmap
-    
+  def rgbmap
+    map = Array.new
+    image.each_pixel do |pixel, col, row|
+      if map[row].kind_of?(Array)
+        map[row][col] = PixelDecorator.new(pixel)
+      else 
+        map[row] = Array.new
+        map[row][col] = PixelDecorator.new(pixel)
+      end
+    end  
+    map
   end  
-
-  def howl  
-    return 'AwooOOOoooOOO!'  
-  end 
   
   def display  
     Magick::Image.read('5x5circle.jpg')[0].each_pixel do |pixel, col, row|

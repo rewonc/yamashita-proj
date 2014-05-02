@@ -1,5 +1,7 @@
 require 'sinatra'
 
 get '/hi' do
-  "Hello World!"
+  load 'script.rb'
+  @imagemap = Imagemap.new
+  erb :index
 end

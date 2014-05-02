@@ -1,20 +1,19 @@
 <html>
 <head>
 <style>
-h4{
-  float:left;
-}
-table{
-  font-family:monospace;
-  float:left;
-}
+
+  table{
+    font-family:monospace;
+  }
+
 </style>
 </head>
 <body>
+  
   <img src="<%= request.base_url + @imagemap.path %>" />
   <h5><%= @imagemap.dimensions %></h5>
 
-  <h4>rgb combined lightness</h4>
+  <h4>grayscale lightness</h4>
   <table>
   <% @imagemap.rgbmap.each do |array| %>
     <tr>

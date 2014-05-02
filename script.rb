@@ -4,14 +4,15 @@ require 'delegate'
 
 class PixelDecorator < SimpleDelegator
   def rgb
+    # see http://stackoverflow.com/questions/687261/converting-rgb-to-grayscale-intensity
     lightness = (red/65535.0 * 0.2126) + (green/65535.0 * 0.7152) + (blue/65535.0 * 0.0722)
     (lightness * 100).round
   end
 end
 
 class Imagemap  
-  def initialize
-    @path = '5x5circle.jpg'
+  def initialize(path)
+    @path = path
     @magick = Magick::Image.read('public/' + @path)
   end  
 

@@ -3,11 +3,24 @@ require 'rmagick'
 
 class Imagemap  
   def initialize
-    @image = Magick::Image.read('5x5circle.jpg')[0]
+    @path = '5x5circle.jpg'
+    @magick = Magick::Image.read(@path)
   end  
+
+  def image
+    @magick[0]
+  end
+
+  def path
+    '/' + @path
+  end
+
+  def dimensions
+    "This image is #{image.columns}x#{image.rows} pixels"
+  end
   
-  def bark  
-    'Ruff! Ruff!'  
+  def pixelmap
+    
   end  
 
   def howl  

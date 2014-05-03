@@ -2,19 +2,6 @@ require 'rubygems'
 require 'rmagick'
 require 'delegate'
 
-=begin
-So the photo is around 600 pixels wide and 700 pixels high
-Say I want the nails every half inch. 
-I also see the end product being like 2 ft x 3 ft. 
-That means I have 24 x 28 nails. 
-Or, approximately 25 pixels per nail.
-25 x 25 pixels per nail. 
-If that's the nail grid, it seems like if the board were 25x25 nail grids
-it would allow for maximum extension from the edge grids.
-
-Hmm. what does it look like from the middle?
-=end
-
 class PixelDecorator < SimpleDelegator
   def rgb
     # see http://stackoverflow.com/questions/687261/converting-rgb-to-grayscale-intensity
@@ -24,8 +11,7 @@ class PixelDecorator < SimpleDelegator
   end
 end
 
-class GraphDecorator < SimpleDelegator
-  
+class Grid < SimpleDelegator
   def initialize(image)
     super
     @x_spacing = Math.sqrt(columns).round.to_i
@@ -63,6 +49,46 @@ class GraphDecorator < SimpleDelegator
   end
 end
 
+class Linemapper
+  def initialize(map, grid)
+    @map = map
+    @grid = grid
+  end
+
+  def check(pt1,pt2)
+    if !@grid.array.include?(pt1) || !@grid.array.include?(pt2)
+      return "pt1 or pt2 are not included nail array pts"
+    end
+
+    rise = pt2[1] - pt1[1]
+    run = pt2[0] - pt1[0]
+    rise != 0 ? slope = Rational(run, -rise) : slope = 'infinity'
+    #"run #{run}, fall #{rise}, slope is #{slope.to_s}"
+  end
+
+  def line_pixels(pt1, pt2)
+    arr = []
+    x = pt2[0] - pt1[0]
+    y = pt2[1] - pt1[1]
+    z = hypotenuse(pt1,pt2)
+    return 'no slope' if z === 0
+    x_increment = Rational(x,z)
+    y_increment = Rational(y,z)
+    for i in 1..z do
+      arr << [(pt1[0] + i * x_increment).round, (pt1[1] + i * y_increment).round]
+    end
+    arr.uniq
+  end
+
+  def hypotenuse(pt1, pt2)
+    hypotenuse = Math.sqrt((pt2[1] - pt1[1])**2 + (pt2[0] - pt1[0])**2).round
+  end
+
+
+
+
+end
+
 class Imagemap  
   def initialize(path)
     @path = path
@@ -94,10 +120,15 @@ class Imagemap
     map
   end  
   
-  def graph  
-    GraphDecorator.new(image)
+  def grid  
+    Grid.new(image)
   end  
 
+  def linemapper
+    Linemapper.new(rgbmap, graph)
+  end
 end  
+
+
 
 

@@ -27,12 +27,41 @@
   <br />
   <h2>Representation of "nails"</h2>
   <p>Below is an array of where we will anchor "nails" to the board. Currently distance between nails is determined as sqrt of the dimensions of the image.</p>
-  <p><%= @imagemap.graph.array %></p>
-  <h5>(<%= @imagemap.graph.spacing %>)</h5>
+  <p><%= @imagemap.grid.array %></p>
+  <h5>(<%= @imagemap.grid.spacing %>)</h5>
 
   <br />
   <h2>Deciding where to draw a line</h2>
-  <p>We will choose the first item in the array as a starting point: <%= @imagemap.graph.first_point.inspect %></p>
-  <p>From then on, 
+  <p>We will choose the first item in the array as a starting point: <%= @imagemap.grid.first_point.inspect %></p>
+  <p>We will then draw lines to other points in the array. We will record the path of each line and tally up the number of times it crosses over a pixel. We want the number of pixel-crossings to reflect the darkness value of the pixel. So, the darkest pixels (value of 99) will be crossed 99 times. The lightest pixel (0) will be crossed zero times.</p>
+  <p>The algorithm for choosing the next point to draw to is goverened by the following rules</p>
+  <ul>
+    <li>The line should maximize the number of pixels crossed</li>
+    <li>A pixel can't be crossed once it reaches its darkness value</li>
+    <li>The same line can't be drawn twice.</li>
+  </ul>
+
+  <h4>Here's a table of moves from <%= @imagemap.grid.first_point.inspect %>:</h4>
+  <table>
+    <thead>
+      <tr>
+        <th> target pt [column, row] || </th>
+        <th> slope [*run/rise] || </th>
+        <th> length of hypotenuse|| </th>
+        <th> pixels|| </th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @imagemap.grid.array.each do |point| %>
+        <tr>
+          <td><%= point.to_s %></td>
+          <td><%= @imagemap.linemapper.check(@imagemap.grid.first_point, point)%></td>
+          <td><%= @imagemap.linemapper.hypotenuse(@imagemap.grid.first_point, point)%></td>
+          <td><%= @imagemap.linemapper.line_pixels(@imagemap.grid.first_point, point).inspect %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
 </body>
 </html>

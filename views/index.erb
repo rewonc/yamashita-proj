@@ -9,11 +9,10 @@
 </style>
 </head>
 <body>
-  
+  <h2>Source image:</h2>
   <img src="<%= request.base_url + @imagemap.path %>" />
-  <h5><%= @imagemap.dimensions %></h5>
-
-  <h4>grayscale lightness</h4>
+  <h5>(<%= @imagemap.dimensions %>)</h5>
+  <p>This is a map of the darkness of each pixel in grayscale:</p>
   <table>
   <% @imagemap.rgbmap.each do |array| %>
     <tr>
@@ -25,6 +24,15 @@
     </tr>
   <% end %>
   </table>
+  <br />
+  <h2>Representation of "nails"</h2>
+  <p>Below is an array of where we will anchor "nails" to the board. Currently distance between nails is determined as sqrt of the dimensions of the image.</p>
+  <p><%= @imagemap.graph.array %></p>
+  <h5>(<%= @imagemap.graph.spacing %>)</h5>
 
+  <br />
+  <h2>Deciding where to draw a line</h2>
+  <p>We will choose the first item in the array as a starting point: <%= @imagemap.graph.first_point.inspect %></p>
+  <p>From then on, 
 </body>
 </html>

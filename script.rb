@@ -125,7 +125,7 @@ class Imagemap
   end  
 
   def linemapper
-    Linemapper.new(rgbmap, graph)
+    Linemapper.new(rgbmap, grid)
   end
 end  
 

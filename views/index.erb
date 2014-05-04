@@ -38,7 +38,7 @@
   <ul>
     <li>The line should maximize the number of pixels crossed</li>
     <li>A pixel can't be crossed once it reaches its darkness value</li>
-    <li>The same line can't be drawn twice.</li>
+    <li>There can be a max of 4 lines drawn between two nails, to denote the 4 positions you could string a thread between the left/right sides of 2 nails.</li>
   </ul>
 
   <h4>Here's a table of moves from <%= @imagemap.grid.first_point.inspect %>:</h4>
@@ -48,7 +48,9 @@
         <th> target pt [column, row] || </th>
         <th> slope [*run/rise] || </th>
         <th> length of hypotenuse|| </th>
-        <th> pixels|| </th>
+        <th> pixel darkness  ||</th>
+        <th> is there a zero  ||</th>
+        <th> distance </th>
       </tr>
     </thead>
     <tbody>
@@ -57,11 +59,34 @@
           <td><%= point.to_s %></td>
           <td><%= @imagemap.linemapper.check(@imagemap.grid.first_point, point)%></td>
           <td><%= @imagemap.linemapper.hypotenuse(@imagemap.grid.first_point, point)%></td>
-          <td><%= @imagemap.linemapper.line_pixels(@imagemap.grid.first_point, point).inspect %></td>
+          <td><%= @imagemap.linemapper.line_pixels(@imagemap.grid.first_point, point).map{|x| x[0].rgb} %></td>
+          <td><%= @imagemap.linemapper.line_pixels(@imagemap.grid.first_point, point).map{|x| x[0].available_moves}.include?(0) %></td>
+          <td><%= @imagemap.linemapper.line_pixels(@imagemap.grid.first_point, point).length %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
+
+  <h4>The results of line_option method:</h4>
+  <p>We should choose the line <%= @imagemap.linemapper.best_line(@imagemap.grid.first_point).map{|x| "#{x[2]}x#{x[1]}"} %></p>
+  <p>This line represents no zeroes as well as the max amount of pixels crossed.</p>
+
+
+  <br />
+  <h2>Drawing the line</h2>
+  <p>Let's draw the new darkness map, after we </p>
+  <table>
+    <% @imagemap.rgbmap.each do |array| %>
+      <tr>
+        <% array.each do |decorator| %>
+          <td>
+            <%= (decorator.count) %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+
 
 </body>
 </html>

@@ -2,13 +2,43 @@ require 'rubygems'
 require 'rmagick'
 require 'delegate'
 
+#one method: set the nails beforehand
+#another method: set the nails later. why not do that? Just build off pixels.
+#make it so that new vertices come from the photo. Why make it fit to a grid?
+#how to figure out the best vertices?
+#right now, with our 30 pts we have 900 possible lines. Hrm. Thats actually
+#not that much, as we must necessarily take a subset.
+#If we don't have flexibility in the vertices, that might not be enough.
+#We could also make the math for the lines go from the vertices of the pixel
+#each pixel would have four sides or four points that would be the starting pts
+#would replicate the geometry of the nails.
+
+#making the grid:
+#we'd want the max darkness value between all the combined pts
+#that still could hit every pixel
+#right? The current grid doesn't hit every pixel I think. 
+
 class PixelDecorator < SimpleDelegator
+  def initialize(obj)
+    super
+    @count = 0
+  end
+
   def rgb
     # see http://stackoverflow.com/questions/687261/converting-rgb-to-grayscale-intensity
     lightness = (red/65535.0 * 0.2126) + (green/65535.0 * 0.7152) + (blue/65535.0 * 0.0722)
     percentage = (lightness * 100).round
     100 - percentage
   end
+
+  def available_moves
+    rgb - @count
+  end
+
+  def cross
+    @count = @count = 1
+  end 
+
 end
 
 class Grid < SimpleDelegator
@@ -53,6 +83,7 @@ class Linemapper
   def initialize(map, grid)
     @map = map
     @grid = grid
+    @history = Array.new
   end
 
   def check(pt1,pt2)
@@ -71,13 +102,30 @@ class Linemapper
     x = pt2[0] - pt1[0]
     y = pt2[1] - pt1[1]
     z = hypotenuse(pt1,pt2)
-    return 'no slope' if z === 0
+    return [] if z === 0
     x_increment = Rational(x,z)
     y_increment = Rational(y,z)
     for i in 1..z do
-      arr << [(pt1[0] + i * x_increment).round, (pt1[1] + i * y_increment).round]
+      c = (pt1[0] + i * x_increment).round
+      r = (pt1[1] + i * y_increment).round
+      arr << [@map[r-1][c-1], c, r] if !@map[r-1][c-1].nil?
     end
-    arr.uniq
+    arr
+  end
+
+  def line_options(startpt)
+    arr = []
+    @grid.array.each do |point|
+      arr << line_pixels(startpt, point) unless line_pixels(startpt,point).map{|x|x[0].available_moves}.include?(0)
+    end
+    arr
+  end
+
+  def best_line(startpt)
+    x = line_options(startpt)
+    x.max_by do |element|
+      element.map{|y| [y[1],y[2]]}.uniq.length
+    end
   end
 
   def hypotenuse(pt1, pt2)

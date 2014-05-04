@@ -74,9 +74,24 @@
 
   <br />
   <h2>Drawing the line</h2>
-  <p>Let's draw the new darkness map, after we </p>
+  <p>Let's draw the new darkness map, after we have iterated over our chosen line</p>
+   <%= @imagemap.linemapper.draw_line(@imagemap.grid.first_point).inspect %>
   <table>
-    <% @imagemap.rgbmap.each do |array| %>
+    <% @imagemap.linemapper.draw_lines(@imagemap.grid.first_point, 1).each do |array| %>
+      <tr>
+        <% array.each do |decorator| %>
+          <td>
+            <%= (decorator.count) %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+
+  <h2>Drawing multiple lines</h2>
+  <p>Now let's do that 100 times.</p>
+  <table>
+    <% @imagemap.linemapper.draw_lines(@imagemap.grid.first_point, 100).each do |array| %>
       <tr>
         <% array.each do |decorator| %>
           <td>

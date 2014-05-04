@@ -36,8 +36,12 @@ class PixelDecorator < SimpleDelegator
   end
 
   def cross
-    @count = @count = 1
+    @count = @count + 1
   end 
+
+  def count
+    @count
+  end
 
 end
 
@@ -110,6 +114,9 @@ class Linemapper
       r = (pt1[1] + i * y_increment).round
       arr << [@map[r-1][c-1], c, r] if !@map[r-1][c-1].nil?
     end
+    arr << [@map[pt1[1]-1][pt1[0]-1], pt1[0], pt1[1]]
+    arr << [@map[pt2[1]-1][pt2[0]-1], pt2[0], pt2[1]]
+    #reduce duplication here somehow. this is a problem.
     arr
   end
 
@@ -126,6 +133,23 @@ class Linemapper
     x.max_by do |element|
       element.map{|y| [y[1],y[2]]}.uniq.length
     end
+    # need to return uniqs so they dont get counted twice by draw line
+  end
+
+  def draw_line(startpt)
+    best_line(startpt).each do |point|
+      @map[point[2]-1][point[1]-1].cross unless @map[point[2]][point[1]].nil?
+    end
+    return [best_line(startpt).last[1],best_line(startpt).last[2]]
+  end
+
+  def draw_lines(startpt, number)
+    i = 0
+    while i < number
+      startpt = draw_line(startpt)
+      i = i + 1
+    end
+    @map
   end
 
   def hypotenuse(pt1, pt2)
